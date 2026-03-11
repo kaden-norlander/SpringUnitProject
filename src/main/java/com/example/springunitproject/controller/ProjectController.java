@@ -1,10 +1,10 @@
 package com.example.springunitproject.controller;
 
-import com.example.springunitproject.model.Project;
-import com.example.springunitproject.repository.ProjectRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.springunitproject.dto.ProjectDto;
+import com.example.springunitproject.service.ProjectService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -12,14 +12,35 @@ import java.util.List;
 @RequestMapping("/api/projects")
 public class ProjectController {
 
-    private final ProjectRepository projectRepository;
+    private final ProjectService projectService;
 
-    public ProjectController(ProjectRepository projectRepository) {
-        this.projectRepository = projectRepository;
+    public ProjectController(ProjectService projectService) {
+        this.projectService = projectService;
     }
 
     @GetMapping
-    public List<Project> getAllProjects() {
-        return projectRepository.findAll();
+    public List<ProjectDto> getAllProjects() {
+        return projectService.findAllProjects();
+    }
+
+    @GetMapping("/{id}")
+    public ProjectDto getProjectById(@PathVariable Long id) {
+        return projectService.findProjectById(id);
+    }
+
+    @PostMapping
+    public ResponseEntity<ProjectDto> createProject(@RequestBody ProjectDto projectDto) {
+        return new ResponseEntity<>(projectService.createProject(projectDto), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ProjectDto updateProject(@PathVariable Long id, @RequestBody ProjectDto projectDto) {
+        return projectService.updateProject(id, projectDto);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+        projectService.deleteProject(id);
+        return ResponseEntity.noContent().build();
     }
 }
