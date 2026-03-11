@@ -40,6 +40,17 @@ public class User {
         this.createdAt = createdAt;
     }
 
+    // Helper method to keep both sides of the relationship in sync
+    public void addProject(Project project) {
+        projects.add(project);
+        project.setUser(this);
+    }
+
+    public void removeProject(Project project) {
+        projects.remove(project);
+        project.setUser(null);
+    }
+
     public long getId() {return id;}
     public void setId(long id) {this.id = id;}
 
