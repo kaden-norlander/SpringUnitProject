@@ -8,7 +8,6 @@ public class ProjectDTO {
     private Long id;
     private String title;
     private String description;
-    private LocalDate targetDeadline;
     private int completionPercentage; // Calculated overall progress
     private List<SectionDTO> sections = new ArrayList<>();
 
@@ -23,9 +22,6 @@ public class ProjectDTO {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-
-    public LocalDate getTargetDeadline() { return targetDeadline; }
-    public void setTargetDeadline(LocalDate targetDeadline) { this.targetDeadline = targetDeadline; }
 
     public int getCompletionPercentage() { return completionPercentage; }
     public void setCompletionPercentage(int completionPercentage) { this.completionPercentage = completionPercentage; }
