@@ -6,6 +6,7 @@ import com.example.unitprojectspring.Entities.Section;
 import com.example.unitprojectspring.Entities.User;
 import com.example.unitprojectspring.Repositories.ProjectRepository;
 import com.example.unitprojectspring.Repositories.UserRepository;
+import com.example.unitprojectspring.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -24,20 +25,41 @@ public class ProjectService {
     }
 
     public ProjectDTO createProject(Project project, Long user_id) {
-        Project savedProject = projectRepository.save(project);
-
         if (user_id != null) {
-            Optional<User> userOpt = userRepository.findById(user_id);
-            if (userOpt.isPresent()) {
-                User user = userOpt.get();
-
-                user.addProject(savedProject);
-
-                userRepository.save(user);
-            }
+            User user = userRepository.findById(user_id)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            project.setUser(user);
         }
-
+        Project savedProject = projectRepository.save(project);
         return convertToDto(savedProject);
+    }
+
+    public ProjectDTO getProjectById(Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+        return convertToDto(project);
+    }
+
+    public java.util.List<ProjectDTO> getAllProjects() {
+        return projectRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public ProjectDTO updateProject(Long id, Project projectDetails) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+        project.setTitle(projectDetails.getTitle());
+        project.setDescription(projectDetails.getDescription());
+        Project updatedProject = projectRepository.save(project);
+        return convertToDto(updatedProject);
+    }
+
+    public void deleteProject(Long id) {
+        if (!projectRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Project not found");
+        }
+        projectRepository.deleteById(id);
     }
 
     private ProjectDTO convertToDto(Project projectEntity) {
