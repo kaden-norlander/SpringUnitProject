@@ -1,5 +1,4 @@
-package com.example.springunitproject;
-
+package com.example.unitprojectspring;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
