@@ -1,13 +1,17 @@
 package com.example.unitprojectspring.Controllers;
 
-import com.example.unitprojectspring.DTO.UserDTO;
 import com.example.unitprojectspring.DTO.UserRegistrationDTO;
+import com.example.unitprojectspring.Entities.User;
 import com.example.unitprojectspring.Service.UserService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.security.Principal;
 
-@RestController
+@Controller
 @RequestMapping("/users")
 public class UserController {
 
@@ -17,28 +21,34 @@ public class UserController {
         this.userService = userService;
     }
 
-    // Return all users
-    @GetMapping("/all")
-    public List<UserDTO> getAllUsers() {
-        return userService.getAllUsers();
+    @GetMapping("/profile")
+    public String showProfile(Model model, Principal principal) {
+        User currentUser = userService.getUserFromPrincipal(principal.getName());
+
+        UserRegistrationDTO dto = new UserRegistrationDTO();
+        dto.setUsername(currentUser.getUsername());
+        dto.setEmail(currentUser.getEmail());
+
+        model.addAttribute("userDto", dto);
+        return "profile";
     }
 
-    // Get users by their id
-    @GetMapping("/{id}")
-    public UserDTO getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+    @PostMapping("/profile/update")
+    public String updateProfile(@ModelAttribute("userDto") UserRegistrationDTO userDto, Principal principal) {
+        User currentUser = userService.getUserFromPrincipal(principal.getName());
+        userService.updateUser(currentUser.getId(), userDto);
+
+        return "redirect:/users/profile?success";
     }
 
-    // Update the users information
-    @PutMapping("/{id}/update")
-    public UserDTO updateUser(@PathVariable Long id,
-                              @RequestBody UserRegistrationDTO registrationDTO) {
-        return userService.updateUser(id, registrationDTO);
-    }
+    @PostMapping("/profile/delete")
+    public String deleteProfile(Principal principal, HttpServletRequest request) throws ServletException {
+        User currentUser = userService.getUserFromPrincipal(principal.getName());
 
-    // Delete the user from the system
-    @DeleteMapping("/{id}/delete")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+        userService.deleteUser(currentUser.getId());
+
+        request.logout();
+
+        return "redirect:/register?deleted";
     }
 }

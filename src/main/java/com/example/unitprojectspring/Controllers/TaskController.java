@@ -1,13 +1,12 @@
 package com.example.unitprojectspring.Controllers;
 
-import com.example.unitprojectspring.DTO.TaskDTO;
-import com.example.unitprojectspring.Service.TaskService;
 import com.example.unitprojectspring.Entities.Task;
+import com.example.unitprojectspring.Service.TaskService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-@RestController
+@Controller
 @RequestMapping("/tasks")
 public class TaskController {
 
@@ -17,45 +16,43 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    // Create Task
-    @PostMapping("section/{sectionId}")
-    public TaskDTO createTask(@RequestBody Task task, @PathVariable Long sectionId) {
-        return taskService.createTask(task, sectionId);
+    @PostMapping("/section/{sectionId}/add")
+    public String createTask(@ModelAttribute Task task, @PathVariable Long sectionId, HttpServletRequest request) {
+        taskService.createTask(task, sectionId);
+
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/api/dashboard");
     }
 
-    // Get Task By Id
-    @GetMapping("/{id}")
-    public TaskDTO getTaskById(@PathVariable Long id) {
-        return taskService.getTaskById(id);
-    }
+    @PostMapping("/{id}/update")
+    public String updateTask(@PathVariable Long id, @ModelAttribute Task taskDTO, HttpServletRequest request) {
 
-    // Get All Tasks By Section
-    @GetMapping("/{section}")
-    public List<TaskDTO> getAllTasksBySection(@PathVariable Long section) {
-        return taskService.getAllTasksBySection(section);
-    }
-
-    // Update Tasks
-    @PutMapping("/{id}/update")
-    public TaskDTO updateTask(@PathVariable Long id,
-                              @RequestBody TaskDTO taskDTO) {
         Task task = new Task();
         task.setTitle(taskDTO.getTitle());
         task.setDescription(taskDTO.getDescription());
         task.setCompleted(taskDTO.isCompleted());
-        return taskService.updateTask(id, task);
+
+        taskService.updateTask(id, task);
+
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/api/dashboard");
     }
 
-    // Toggle Task Completion
-    @PatchMapping("/{id}/toggle")
-    public TaskDTO toggleTaskCompletion(@PathVariable Long id) {
-        return taskService.toggleTaskCompletion(id);
+    @PostMapping("/{id}/toggle")
+    public String toggleTaskCompletion(@PathVariable Long id, HttpServletRequest request) {
+
+        taskService.toggleTaskCompletion(id);
+
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/api/dashboard");
     }
 
+    @PostMapping("/{id}/delete")
+    public String deleteTask(@PathVariable Long id, HttpServletRequest request) {
 
-    // Delete Task
-    @DeleteMapping("/{id}/delete")
-    public void deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
+
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/api/dashboard");
     }
 }

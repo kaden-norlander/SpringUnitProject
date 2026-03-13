@@ -30,6 +30,16 @@ public class HomeController {
         return "dashboard";
     }
 
+    @GetMapping("/project/{id}")
+    public String viewProjectDetails(@PathVariable Long id, Model model) {
+
+        ProjectDTO project = projectService.getProjectById(id);
+
+        model.addAttribute("project", project);
+
+        return "project-details"; // Loads our new HTML file
+    }
+
     @PostMapping("/{project_id}/delete")
     public String deleteProject(@PathVariable Long project_id, Principal principal){
         User currentUser = userService.getUserFromPrincipal(principal.getName());
