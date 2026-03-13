@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home - Spring Unit Project</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f2f5; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        .hero { text-align: center; background: white; padding: 3rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn { display: inline-block; padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 6px; margin-top: 20px; font-weight: bold; }
+        .btn:hover { background: #0056b3; }
+        .nav { position: absolute; top: 20px; right: 20px; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a th:href="@{/projects}" class="btn" style="background: #6c757d;">My Projects</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="btn" style="background: #dc3545; border:none; cursor:pointer;">Logout</button>
+        </form>
+    </div>
+    <div class="hero">
+        <h1>Welcome to Spring Unit Project</h1>
+        <p>Manage your projects, sections, and tasks with ease.</p>
+        <a th:href="@{/projects}" class="btn">Get Started</a>
+    </div>
+</body>
+</html>

@@ -1,7 +1,10 @@
 package com.example.springunitproject.service;
 
 import com.example.springunitproject.dto.ProjectDTO;
+import com.example.springunitproject.dto.SectionDTO;
+import com.example.springunitproject.dto.TaskDTO;
 import com.example.springunitproject.entities.Project;
+import com.example.springunitproject.entities.Section;
 import com.example.springunitproject.entities.User;
 import com.example.springunitproject.repositories.ProjectRepository;
 import com.example.springunitproject.repositories.UserRepository;
@@ -23,20 +26,15 @@ public class ProjectService {
     }
 
     public ProjectDTO createProject(Project project, Long user_id) {
-        Project savedProject = projectRepository.save(project);
-
         if (user_id != null) {
-            java.util.Optional<User> userOpt = userRepository.findById(user_id);
-            if (userOpt.isPresent()) {
-                User user = userOpt.get();
-
-                user.addProject(savedProject);
-
-                userRepository.save(user);
-            }
+            User user = userRepository.findById(user_id)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + user_id));
+            user.addProject(project);
+            Project savedProject = projectRepository.save(project);
+            return convertToDto(savedProject);
+        } else {
+            throw new IllegalArgumentException("User ID must not be null");
         }
-
-        return convertToDto(savedProject);
     }
 
     public ProjectDTO getProjectById(Long id) {
@@ -73,6 +71,28 @@ public class ProjectService {
         dto.setTitle(projectEntity.getTitle());
         dto.setDescription(projectEntity.getDescription());
         dto.setCompletionPercentage(projectEntity.getCompletionPercentage());
+
+        if (projectEntity.getSections() != null) {
+            dto.setSections(projectEntity.getSections().stream()
+                    .map(this::convertSectionToDto)
+                    .collect(Collectors.toList()));
+        }
+
+        return dto;
+    }
+
+    private SectionDTO convertSectionToDto(Section sectionEntity) {
+        SectionDTO dto = new SectionDTO();
+        dto.setId(sectionEntity.getId());
+        dto.setTitle(sectionEntity.getTitle());
+        dto.setCompletionPercentage(sectionEntity.getCompletionPercentage());
+
+        if (sectionEntity.getTasks() != null) {
+            dto.setTasks(sectionEntity.getTasks().stream()
+                    .map(task -> new TaskDTO(task.getId(), task.getTitle(), task.getDescription(), task.isCompleted()))
+                    .collect(Collectors.toList()));
+        }
+
         return dto;
     }
 }

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Projects - Spring Unit Project</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f2f5; margin: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .project-card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .project-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .progress-bar { background: #e9ecef; border-radius: 10px; height: 10px; margin-top: 10px; overflow: hidden; }
+        .progress-fill { background: #28a745; height: 100%; border-radius: 10px; transition: width 0.3s ease; }
+        .section { margin-left: 20px; border-left: 2px solid #007bff; padding-left: 15px; margin-top: 15px; }
+        .task { margin-left: 40px; margin-top: 5px; font-size: 0.9em; }
+        .btn { padding: 5px 10px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 0.8em; }
+        .logout { float: right; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form th:action="@{/logout}" method="post" class="logout">
+            <button type="submit" class="btn" style="background: #dc3545; border:none; cursor:pointer;">Logout</button>
+        </form>
+        <h1>My Projects</h1>
+        
+        <div th:if="${projects == null || projects.empty}">
+            <p>You haven't created any projects yet.</p>
+        </div>
+
+        <div th:each="project : ${projects}" class="project-card">
+            <div class="project-header">
+                <h2 th:text="${project.title}">Project Title</h2>
+                <span th:text="${project.completionPercentage + '%'}">0%</span>
+            </div>
+            <p th:text="${project.description}">Project Description</p>
+            <div class="progress-bar">
+                <div class="progress-fill" th:style="'width: ' + ${project.completionPercentage} + '%'"></div>
+            </div>
+
+            <div th:each="section : ${project.sections}" class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 th:text="${section.title}" style="margin: 0;">Section Title</h3>
+                    <div>
+                        <button class="btn-sm" th:onclick="|toggleEdit(${section.id})|" style="background: #ffc107; color: black; border: none; padding: 2px 5px; cursor: pointer; border-radius: 3px;">Edit</button>
+                        <form th:action="@{/projects/sections/delete}" method="post" style="display: inline;">
+                            <input type="hidden" name="sectionId" th:value="${section.id}"/>
+                            <button type="submit" class="btn-sm" style="background: #dc3545; color: white; border: none; padding: 2px 5px; cursor: pointer; border-radius: 3px;" onclick="return confirm('Are you sure?')">Delete</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Hidden Edit Form -->
+                <form th:id="'editForm-' + ${section.id}" th:action="@{/projects/sections/update}" method="post" style="display: none; margin-top: 10px;">
+                    <input type="hidden" name="sectionId" th:value="${section.id}"/>
+                    <input type="text" name="title" th:value="${section.title}" required style="padding: 3px;"/>
+                    <button type="submit" class="btn" style="padding: 3px 8px;">Apply</button>
+                    <button type="button" class="btn" th:onclick="|toggleEdit(${section.id})|" style="background: #6c757d; padding: 3px 8px;">Cancel</button>
+                </form>
+
+                <div th:each="task : ${section.tasks}" class="task">
+                    <input type="checkbox" th:checked="${task.completed}" disabled/>
+                    <span th:text="${task.title}">Task Title</span>
+                </div>
+            </div>
+
+            <!-- Add Section Form -->
+            <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px;">
+                <form th:action="@{/projects/sections/add}" method="post">
+                    <input type="hidden" name="projectId" th:value="${project.id}"/>
+                    <input type="text" name="title" placeholder="New Section Name" required style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;"/>
+                    <button type="submit" class="btn">Make Section</button>
+                </form>
+            </div>
+        </div>
+
+    <script>
+        function toggleEdit(id) {
+            const form = document.getElementById('editForm-' + id);
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -23,20 +23,15 @@ public class TaskService {
     }
 
     public TaskDTO createTask(Task task, Long section_id) {
-        Task savedTask = taskRepository.save(task);
-
         if (section_id != null) {
-            java.util.Optional<Section> sectionOpt = sectionRepository.findById(section_id);
-            if (sectionOpt.isPresent()) {
-                Section section = sectionOpt.get();
-
-                section.addTask(savedTask);
-
-                sectionRepository.save(section);
-            }
+            Section section = sectionRepository.findById(section_id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Section not found with id: " + section_id));
+            section.addTask(task);
+            Task savedTask = taskRepository.save(task);
+            return convertToDto(savedTask);
+        } else {
+            throw new IllegalArgumentException("Section ID must not be null");
         }
-
-        return convertToDto(savedTask);
     }
 
     public TaskDTO getTaskById(Long id) {

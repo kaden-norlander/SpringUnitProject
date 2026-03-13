@@ -1,6 +1,7 @@
 package com.example.springunitproject.service;
 
 import com.example.springunitproject.dto.SectionDTO;
+import com.example.springunitproject.dto.TaskDTO;
 import com.example.springunitproject.entities.Project;
 import com.example.springunitproject.entities.Section;
 import com.example.springunitproject.repositories.ProjectRepository;
@@ -23,20 +24,15 @@ public class SectionService {
     }
 
     public SectionDTO createSection(Section section, Long project_id) {
-        Section savedSection = sectionRepository.save(section);
-
         if (project_id != null) {
-            java.util.Optional<Project> projectOpt = projectRepository.findById(project_id);
-            if (projectOpt.isPresent()) {
-                Project project = projectOpt.get();
-
-                project.addSection(savedSection);
-
-                projectRepository.save(project);
-            }
+            Project project = projectRepository.findById(project_id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + project_id));
+            project.addSection(section);
+            Section savedSection = sectionRepository.save(section);
+            return convertToDto(savedSection);
+        } else {
+            throw new IllegalArgumentException("Project ID must not be null");
         }
-
-        return convertToDto(savedSection);
     }
 
     public SectionDTO getSectionById(Long id) {
@@ -73,6 +69,13 @@ public class SectionService {
         dto.setId(sectionEntity.getId());
         dto.setTitle(sectionEntity.getTitle());
         dto.setCompletionPercentage(sectionEntity.getCompletionPercentage());
+        
+        if (sectionEntity.getTasks() != null) {
+            dto.setTasks(sectionEntity.getTasks().stream()
+                    .map(task -> new TaskDTO(task.getId(), task.getTitle(), task.getDescription(), task.isCompleted()))
+                    .collect(Collectors.toList()));
+        }
+        
         return dto;
     }
 }
