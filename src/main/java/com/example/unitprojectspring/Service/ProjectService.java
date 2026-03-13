@@ -47,6 +47,12 @@ public class ProjectService {
         return convertToDto(project);
     }
 
+    public List<ProjectDTO> getAllProjectsWithUserId(Long userId) {
+        return projectRepository.findByUserId(userId).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     public ProjectDTO updateProject(Long id, Project projectDetails) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found"));

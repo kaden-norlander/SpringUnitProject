@@ -1,68 +1,55 @@
 package com.example.unitprojectspring.Controllers;
-
 import com.example.unitprojectspring.Entities.Project;
+import com.example.unitprojectspring.Service.UserService;
 import org.springframework.ui.Model;
 import com.example.unitprojectspring.DTO.ProjectDTO;
 import com.example.unitprojectspring.Entities.User;
-import com.example.unitprojectspring.Repositories.UserRepository;
 import com.example.unitprojectspring.Service.ProjectService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import java.security.Principal;
 import java.util.List;
 
 @Controller
 @RequestMapping("/api/dashboard")
 public class HomeController {
-    private final UserRepository userRepository;
+
+    private final UserService userService;
     private final ProjectService projectService;
 
-    public HomeController(UserRepository userRepository, ProjectService projectService) {
-        this.userRepository = userRepository;
+    public HomeController(UserService userService, ProjectService projectService) {
+        this.userService = userService;
         this.projectService = projectService;
     }
 
-    @GetMapping("/all")
-    public String getallprojects(Model model, Principal principal) {
-        String username = principal.getName();
-
-        User currentuser = userRepository.findByUsernameOrEmail(username, username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        List<ProjectDTO> projects = projectService.getAllProjectsWithUserId(currentuser.getId());
-
+    @GetMapping("")
+    public String getAllProjects(Model model, Principal principal) {
+        User currentUser = userService.getUserFromPrincipal(principal.getName());
+        List<ProjectDTO> projects = projectService.getAllProjectsWithUserId(currentUser.getId());
         model.addAttribute("projects", projects);
-
-        return "redirect:/api/dashboard/all";
-
+        return "dashboard";
     }
 
     @PostMapping("/{project_id}/delete")
-    public String deleteproject(@PathVariable("project_id") Long project_id, Principal principal){
-        String username = principal.getName();
-        User currentuser = userRepository.findByUsernameOrEmail(username, username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        ProjectDTO projecttodelete = projectService.getProjectById(project_id);
+    public String deleteProject(@PathVariable Long project_id, Principal principal){
+        User currentUser = userService.getUserFromPrincipal(principal.getName());
+        ProjectDTO projectToDelete = projectService.getProjectById(project_id);
 
-        if (!projecttodelete.getUserId().equals(currentuser.getId())) {
-            return "redirect:/api/dashboard/all?error=unauthorized";
+        if (!projectToDelete.getUserId().equals(currentUser.getId())) {
+            return "redirect:/api/dashboard?error=unauthorized";
         }
+
         projectService.deleteProject(project_id);
-
-        return "redirect:/api/dashboard/all";
-    }
-
-    @PostMapping("/add")
-    public String addproject(@ModelAttribute Project newproject, Principal principal){
-        String username = principal.getName();
-        User currentuser = userRepository.findByUsernameOrEmail(username, username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        projectService.createProject(newproject, currentuser.getId());
 
         return "redirect:/api/dashboard";
     }
 
+    @PostMapping("/add")
+    public String addProject(@ModelAttribute Project newproject, Principal principal){
+        User currentUser = userService.getUserFromPrincipal(principal.getName());
+        projectService.createProject(newproject, currentUser.getId());
 
+        // FIXED: Redirect back to the GET mapping to reload the data!
+        return "redirect:/api/dashboard";
+    }
 }
