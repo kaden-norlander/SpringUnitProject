@@ -34,11 +34,22 @@ public class UserController {
     }
 
     @PostMapping("/profile/update")
-    public String updateProfile(@ModelAttribute("userDto") UserRegistrationDTO userDto, Principal principal) {
+    public String updateProfile(
+            @ModelAttribute("userDto") UserRegistrationDTO userDto,
+            Principal principal,
+            HttpServletRequest request) {
+
         User currentUser = userService.getUserFromPrincipal(principal.getName());
+
         userService.updateUser(currentUser.getId(), userDto);
 
-        return "redirect:/users/profile?success";
+        try {
+            request.logout();
+        } catch (ServletException e) {
+            System.out.println("Error logging out user after profile update.");
+        }
+
+        return "redirect:/login?updated";
     }
 
     @PostMapping("/profile/delete")

@@ -73,7 +73,7 @@
             Update Credentials
         </h2>
 
-        <form th:action="@{/users/profile/update}" th:object="${userDto}" method="POST" class="space-y-6">
+        <form th:action="@{/users/profile/update}" th:object="${userDto}" method="POST" onsubmit="return confirm('Are you absolutely sure you want to update your data? You will need to login again.');" class="space-y-6">
 
             <div>
                 <label class="block text-[10px] font-black uppercase tracking-widest text-[#333333] mb-2">Operator ID</label>

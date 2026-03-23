@@ -62,7 +62,7 @@
             <div class="flex items-center">
                 <a th:href="@{/api/dashboard/project/{id}(id=${section.projectId})}" class="inline-flex items-center px-4 py-2 border-2 border-[#333333] text-xs font-black uppercase tracking-widest text-stone-100 bg-[#333333] hover:bg-stone-700 hover:border-[#FFC300] transition-colors shadow-[2px_2px_0_0_#1c1917] active:translate-y-px active:translate-x-px active:shadow-none">
                     <svg class="w-4 h-4 mr-2 text-[#FFC300]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="square" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    Line Overview
+                    Car Overview
                 </a>
             </div>
         </div>
@@ -75,7 +75,7 @@
             <span class="bg-[#333333] text-[#FFC300] px-3 py-1 text-sm mr-2 border-2 border-[#333333]">CAR</span>
             <span th:text="${section.title}">Section Title</span>
         </h1>
-        <p class="text-[#333333] font-mono font-bold text-sm mt-2 ml-16">Cargo Manifest Management</p>
+        <p class="text-[#333333] font-mono font-bold text-sm mt-2 ml-16">Cargo Management</p>
     </div>
 </div>
 
@@ -180,7 +180,7 @@
                 </div>
 
                 <div class="lg:w-24 flex lg:justify-end">
-                    <form th:action="@{/tasks/{id}/delete(id=${task.id})}" method="POST" onsubmit="return confirm('Jettison this cargo?');">
+                    <form th:action="@{/tasks/{id}/delete(id=${task.id})}" method="POST" onsubmit="return confirm('Delete this cargo?');">
                         <button type="submit" class="p-2 text-stone-400 hover:text-[#FF5733] border-2 border-[#333333] hover:border-[#FF5733] transition-all bg-white shadow-[2px_2px_0_0_#1c1917] active:translate-y-px active:translate-x-px active:shadow-none" title="Jettison">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="square" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
